@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const app = express();
 require('dotenv').config();
 const PORT = process.env.PORT || 8000;
+
 app.use(bodyParser.json());
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://viswanadhamandala:vB9q828coydUI8bU@cluster0.mtqsuu8.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true })
@@ -23,6 +24,7 @@ const productSchema = new mongoose.Schema({
 
 const Product = mongoose.model('Product', productSchema);
 
+// 1. Create an API to create a product
 app.post('/products', async (req, res) => {
     const { id, productName, productCategory, imageUrl, productDescription } = req.body;
 
@@ -43,6 +45,7 @@ app.post('/products', async (req, res) => {
     }
 });
 
+// 2. Create an API to fetch a product by product id
 app.get('/products/:id', async (req, res) => {
     const productId = req.params.id;
 
@@ -60,17 +63,17 @@ app.get('/products/:id', async (req, res) => {
     }
 });
 
+// 3. Create an API to fetch all products with filters and pagination
 app.get('/products', async (req, res) => {
-    const { page, pageSize, productName, category } = req.query;
+    const { page, pageSize, productName, productCategory } = req.query;
     let query = {};
 
-    // Apply filters
     if (productName) {
         query.productName = { $regex: new RegExp(productName, 'i') };
     }
 
-    if (category) {
-        query.productCategory = category.toLowerCase();
+    if (productCategory) {
+        query.productCategory = { $regex: new RegExp(productCategory, 'i') };
     }
 
     try {
@@ -94,12 +97,20 @@ app.get('/products', async (req, res) => {
     }
 });
 
+
+
+// 4. Create an API to delete a product by id
 app.delete('/products/:id', async (req, res) => {
     const productId = req.params.id;
 
     try {
-        await Product.deleteOne({ id: productId });
-        res.json({ message: 'Product deleted successfully' });
+        const deletedProduct = await Product.findOneAndDelete({ id: productId });
+        
+        if (!deletedProduct) {
+            res.status(404).json({ error: 'Product not found' });
+        } else {
+            res.json({ message: 'Product deleted successfully' });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
