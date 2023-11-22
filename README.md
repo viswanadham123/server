@@ -35,10 +35,10 @@ Open [http://localhost:8000](http://localhost:8000) to view it in your browser.
 ### Quering
 Products
 Retrieve all products:
-[http://localhost:8000/products]
+(http://localhost:8000/products)
 
 Retrieve a specific product (e.g., product with ID P105):
-[http://localhost:8000/products/P105]
+(http://localhost:8000/products/P105)
 
 Query products with pagination and filters:
-[http://localhost:8000/products?page=1&pageSize=10&productName=Shoes&productCategory=Clothes]
+(http://localhost:8000/products?page=1&pageSize=10&productName=Shoes&productCategory=Clothes)
