@@ -2,15 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = express();
-const PORT = 8000;
+require('dotenv').config();
+const PORT = process.env.PORT || 8000;
 app.use(bodyParser.json());
 
-
-mongoose.connect('mongodb+srv://viswanadhamandala:vB9q828coydUI8bU@cluster0.mtqsuu8.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://viswanadhamandala:vB9q828coydUI8bU@cluster0.mtqsuu8.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch(error => {
         console.error('Error connecting to MongoDB:', error);
-        process.exit(1); 
+        process.exit(1);
     });
 
 const productSchema = new mongoose.Schema({
@@ -20,7 +20,6 @@ const productSchema = new mongoose.Schema({
     imageUrl: String,
     productDescription: String,
 });
-
 
 const Product = mongoose.model('Product', productSchema);
 
@@ -45,7 +44,7 @@ app.post('/products', async (req, res) => {
 });
 
 app.get('/products/:id', async (req, res) => {
-    const productId = parseInt(req.params.id, 10);
+    const productId = req.params.id;
 
     try {
         const product = await Product.findOne({ id: productId });
@@ -75,16 +74,13 @@ app.get('/products', async (req, res) => {
     }
 
     try {
-       
         const totalProducts = await Product.countDocuments(query);
 
-       
         let paginatedProducts = [];
         if (page !== undefined && pageSize !== undefined) {
             const startIndex = (page - 1) * pageSize;
             paginatedProducts = await Product.find(query).skip(startIndex).limit(parseInt(pageSize));
         } else {
-           
             paginatedProducts = await Product.find(query);
         }
 
@@ -117,22 +113,6 @@ process.on('SIGINT', () => {
     });
 });
 
-app.listen(PORT,() => {
+app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
